@@ -3,5 +3,5 @@
  
  If starting from raw (.ND2) images run the following scripts:
  1. calc_1_run_cellfinder_in_folder_light_sweep.m
-  -loads ND2 files from target folders, find/measures cells, and exports set of measurements for each experiment
-  2. calc_2_
+   -loads ND2 files from target folders, find/measures cells, and exports set of measurements for each experiment
+
