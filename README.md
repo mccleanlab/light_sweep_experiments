@@ -18,7 +18,7 @@ Run the following scripts (in order) to generate single-cell fluorescence measur
 
 
 If starting from raw .ND2 images, start at step 1.
-If starting from light sweep experiments measurements from Mendeley data, start on step 2.
+If starting measurements from light sweep experiments deposited to Mendeley data, start on step 2.
 
 After running the above scripts to generate .mat files with measurements, generate plots using the following scripts:
 1. plot_figures_1.m
