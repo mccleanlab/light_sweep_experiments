@@ -2,8 +2,8 @@ close all; clearvars; clc;
 
 %% %%%%%%%%%%%% LOAD PRECALCULATED VARIABLES (IF APPLICABLE) %%%%%%%%%%%%%
 
-load('plot_figures_1_data.mat')
-return
+% load('plot_figures_1_data.mat')
+% return
 
 %% %%%%%%%%%%%% IMPORT DATA AND CALCULATE PROMOTER THRESHOLDS %%%%%%%%%%%%%
 %% Import measurements, simulations, etc
@@ -94,7 +94,7 @@ end
 % Combine objects from datastore and sort by RSS
 mCitrine_model = cat(1,mCitrine_model{:});
 
-%%%%%%%%%%%%%%%%%%%% Fit measurements to ODE solutions %%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%% Fit measurements to ODE solutions %%%%%%%%%%%%%%%%%%%
 clc
 
 % Set parameters
@@ -1162,7 +1162,7 @@ promoter_thresholds_WT.group = kmeans(zscore(promoter_thresholds_WT{:,{'amp_thre
 % Merge groups from clustering back into bigger table
 promoter_thresholds_ideal_mean = outerjoin(promoter_thresholds_ideal_mean,promoter_thresholds_WT(:,{'reporter','group'}),'Type', 'Left', 'MergeKeys', true);
 
-%% %%%%%%%%%%%%%%%% SAVE VARIABLES TO AVOID RECALCULATING %%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%% SAVE VARIABLES TO AVOID RECALCULATING %%%%%%%%%%%%%%%%%
 clearvars -except data data_stats data_Msn2_AUC data_light_dose mCitrine_stats Msn2_ideal reporters_STRE_count...
     plot_colors promoter_fits promoter_fits_mean promoter_response_measured promoter_response_ideal ...
     promoter_thresholds_measured promoter_thresholds_measured_mean promoter_thresholds_ideal promoter_thresholds_ideal_mean
@@ -1830,9 +1830,11 @@ end
 % export_fig(fullfile(pwd,'endpoint_mCitrine_condition1_Msn2_vs_Msn2_WT4EWT'),'-png','-m4');
 
 
-%% Figure S2A: plot light programs
+%% Figure S2A: plot light sweep timecourses
 close all;
+reporters_to_plot = {'glpT','TKL2','ALD3','SIP18 D6','DCS2','HXK1','RTN2','SIP18','CTT1','SIP18 A4','DDR2','HSP12'};
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Plot light programs %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Import example light program
 led_program = load(fullfile(pwd,'example_led_program.mat'));
 led_program = led_program.experiment;
@@ -1844,26 +1846,26 @@ well_conditions = unique(data_stats(:,{'well','condition_display'}),'rows');
 led_program = outerjoin(led_program,well_conditions, 'Type', 'Left', 'MergeKeys', true);
 
 % Plot light program
-clc; clear g; figure('position',[100 100 1200 400]);
+clc; clear g; figure('position',[100 100 2400 125]);
 g = gramm('x',led_program.time(:),'y',led_program.intensity(:),'group',led_program.condition_display);
-g.facet_wrap(led_program.condition_display,'ncols',7,'column_labels',true,'scale','fixed');
+g.facet_wrap(led_program.condition_display,'ncols',14,'column_labels',false,'scale','fixed');
 g.geom_line();
 g.set_names('x','time (min.)','y','light (AU)','column','','row','','linestyle','','color','');
 g.set_color_options('map',[86 128 202]/255);
-g.set_title(strcat('LED program'));
+% g.set_title(strcat('LED program'));
 g.no_legend();
 g.draw()
 g.redraw(0.025);
+% export_fig(fullfile(pwd,'light_programs'),'-png','-m4');
 
-%% Figure S2B: plot Msn2 localization (all mutants)
-% Plot composite of Msn2 localization per mutant
+%%%%%%%%%%%%%% Plot composite of Msn2 localization per mutant %%%%%%%%%%%%%
 Msn2_to_plot = {'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
-clc; clear g; figure('position',[100 100 1200 400]);
+clc; clear g; figure('position',[100 100 2400 125]);
 g = gramm('x',data_stats.time,'y',100*data_stats.mScarlet_localization,...
     'color',data_stats.Msn2_tex,...
     'subset',data_stats.condition_display<=14 & ismember(data_stats.Msn2,Msn2_to_plot) & ...
     ~ismember(data_stats.reporter,{'ALD3','CTT1'}));
-g.facet_wrap(data_stats.condition_display,'ncols',7,'column_labels',true);
+g.facet_wrap(data_stats.condition_display,'ncols',14,'column_labels',false);
 g.stat_summary('type','std','setylim',true);
 g.set_names('x','time (min)','y','Msn2 amplitude (%)','color','','column','');
 g.set_text_options('base_size',10,'interpreter','tex','title_scaling',1);
@@ -1874,33 +1876,7 @@ g.draw();
 g.redraw(0.025);
 % export_fig(fullfile(pwd,'Msn2_loc_all_mutants'),'-png','-m4');
 
-%% Figure S2D: plot reporter induction for full light CLASP vs dCLASP
-
-close all;
-Msn2_to_plot = {'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
-reporters_to_plot = {'glpT','RTN2','TKL2','SIP18','ALD3','CTT1','SIP18 D6','DCS2','SIP18 A4','DDR2','HXK1','HSP12'};
-
-% Exclude outlier replicate
-exclude = (mCitrine_stats.reporter=='ALD3' & mCitrine_stats.Msn2=='Msn2(WT|4E|A)' & mCitrine_stats.replicate=='2');
-
-clc; clear g; figure('units','normalized','outerposition',[0.1 0.1 0.35 0.65]);
-g = gramm('x',categorical(mCitrine_stats.CLASP),'y',mCitrine_stats.mCitrine_max,...
-    'color',mCitrine_stats.Msn2_tex,...
-    'marker',mCitrine_stats.CLASP,...
-    'subset',ismember(mCitrine_stats.Msn2,Msn2_to_plot) & ismember(mCitrine_stats.condition,[9,15]) & ~exclude);
-g.facet_wrap(mCitrine_stats.reporter,'ncols',3,'scale','independent');
-g.stat_summary('type','std','geom',{'bar','black_errorbar'},'setylim',true);
-g.set_color_options('map',plot_colors.RGB(ismember(plot_colors.Msn2,Msn2_to_plot),:)/255);
-g.set_order_options('column',reporters_to_plot,'x',0,'color',plot_colors.Msn2_tex(ismember(plot_colors.Msn2,Msn2_to_plot)));
-g.set_names('x','','y',['max mCitrine' newline '(mean ± std)'],'column','')
-g.set_text_options('interpreter','tex');
-g.axe_property('XLabelScale',0.1);
-g.no_legend();
-g.draw();
-g.redraw(0.05);
-g.facet_axes_handles(1).YLim = [-5 50];
-
-%% Figure S3 - S5 Plot fits over mCitrine timecourses
+%%%%%%%%%%%%%%%%%%%% Plot fits over mCitrine timecourses %%%%%%%%%%%%%%%%%%
 close all;
 conditions_to_plot = 1:14;
 Msn2_to_plot ={'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
@@ -1912,19 +1888,19 @@ for ii = 1:numel(reporter_list)
     reporter = reporter_list(ii);
     
     % Plot measured mCitrine
-    clc; clear g; figure('position',[100 100 1200 400]);
+    clc; clear g; figure('position',[100 100 2400 125]);
     g = gramm('x',data_stats.time,'y',data_stats.mCitrine_cell,...
         'color',data_stats.Msn2_tex,...
         'subset',ismember(data_stats.reporter,reporter) & ismember(data_stats.Msn2,Msn2_to_plot) &...
         ismember(data_stats.condition,conditions_to_plot));
-    g.facet_wrap(data_stats.condition_display,'ncols',7);
+    g.facet_wrap(data_stats.condition_display,'ncols',14,'column_labels',false);
     g.stat_summary('type','std');
     g.set_point_options('base_size',2);
-    g.set_names('x','time (min.)','y',strcat(string(reporter),'-mCitrine'),'column','','row','','color','');
+    g.set_names('x','time (min.)','y',strcat('p',string(reporter),'-mCitrine'),'column','','row','','color','');
     g.set_text_options('interpreter','tex');
     g.set_color_options('map',plot_colors.RGB(ismember(plot_colors.Msn2,Msn2_to_plot),:)/255);
     g.set_order_options('color',plot_colors.Msn2_tex(ismember(plot_colors.Msn2,Msn2_to_plot)));
-    g.set_title(string(reporter));
+%     g.set_title(string(reporter));
     g.set_line_options('base_size',1);
     g.no_legend();
     g.draw();
@@ -1934,7 +1910,7 @@ for ii = 1:numel(reporter_list)
         'color',promoter_response_measured.Msn2_tex,'subset',ismember(promoter_response_measured.reporter,reporter) & ...
         ismember(promoter_response_measured.Msn2,Msn2_to_plot) & ismember(promoter_response_measured.condition,conditions_to_plot) & ...
         promoter_response_measured.K_scale==1);
-    g.facet_wrap(promoter_response_measured.condition_display,'ncols',7);
+    g.facet_wrap(promoter_response_measured.condition_display,'ncols',14);
     g.stat_summary('type','std');
     g.set_color_options('map',0.5*plot_colors.RGB(ismember(plot_colors.Msn2,Msn2_to_plot),:)/255);
     g.set_order_options('color',plot_colors.Msn2_tex(ismember(plot_colors.Msn2,Msn2_to_plot)));
@@ -1942,11 +1918,35 @@ for ii = 1:numel(reporter_list)
     g.no_legend();
     g.draw();
     g.redraw(0.025);
-%     export_fig(fullfile(model_solutions_folder,strcat(string(reporter),'_mCitrine_vs_time_with_fits')),'-png','-m4');
+%     export_fig(fullfile(pwd,strcat(string(reporter),'_mCitrine_vs_time_with_fits')),'-png','-m4');
 end
+%% Figure S2C: plot reporter induction for full light CLASP vs dCLASP
 
+close all;
+Msn2_to_plot = {'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
+reporters_to_plot = {'glpT','RTN2','TKL2','SIP18','ALD3','CTT1','SIP18 D6','DCS2','SIP18 A4','DDR2','HXK1','HSP12'};
 
-%% Figure S6: Plot top 100 (0.1%) of each parameter for all promoters
+% Exclude outlier replicate
+exclude = (mCitrine_stats.reporter=='ALD3' & mCitrine_stats.Msn2=='Msn2(WT|4E|A)' & mCitrine_stats.replicate=='2');
+
+clc; clear g; figure('units','normalized','outerposition',[0.1 0.1 0.45 0.5]);
+g = gramm('x',categorical(mCitrine_stats.CLASP),'y',mCitrine_stats.mCitrine_max,...
+    'color',mCitrine_stats.Msn2_tex,...
+    'marker',mCitrine_stats.CLASP,...
+    'subset',ismember(mCitrine_stats.Msn2,Msn2_to_plot) & ismember(mCitrine_stats.condition,[9,15]) & ~exclude);
+g.facet_wrap(mCitrine_stats.reporter,'ncols',4,'scale','independent');
+g.stat_summary('type','std','geom',{'bar','black_errorbar'},'setylim',true);
+g.set_color_options('map',plot_colors.RGB(ismember(plot_colors.Msn2,Msn2_to_plot),:)/255);
+g.set_order_options('column',reporters_to_plot,'x',0,'color',plot_colors.Msn2_tex(ismember(plot_colors.Msn2,Msn2_to_plot)));
+g.set_names('x','','y','max mCitrine (AU)','column','')
+g.set_text_options('interpreter','tex','base_size',8);
+g.axe_property('XLabelScale',0.1);
+g.no_legend();
+g.draw();
+g.redraw(0.05);
+g.facet_axes_handles(1).YLim = [-5 50];
+
+%% Figure S3A: Plot top 100 (0.1%) of each parameter for all promoters
 close all
 
 reporters_to_plot = {'RTN2','TKL2','SIP18','ALD3','CTT1','SIP18 D6','DCS2','SIP18 A4','DDR2','HXK1','HSP12'};
@@ -1988,7 +1988,7 @@ for ii = 1:numel(params_to_plot)
 end
 g.draw()
 % export_fig(fullfile(pwd,'top_100_params'),'-png','-m4');
-%% Figure S7A: measured vs ideal Msn2 vs time (composite)
+%% Figure S3B: measured vs ideal Msn2 vs time (composite)
 
 %%%%%%%%%%%% Plot measured vs ideal localization time courses %%%%%%%%%%%%%
 close all
@@ -2038,7 +2038,7 @@ g.geom_label();
 g.draw();
 % export_fig(fullfile(pwd,'Msn2_AUC_measured_vs_ideal'),'-png','-m4');
 
-%% Figure S8A: plot amp_thresh_vs_WT and dur_thresh_vs_WT calculation example
+%% Figure S3E: plot amp_thresh_vs_WT and dur_thresh_vs_WT calculation example
 
 close all
 
@@ -2077,7 +2077,7 @@ g.no_legend();
 g.draw();
 g.redraw(0.05);
 
-%% Figure S8B: generic plot of transition rate as a function of Msn2 with varying K and n
+%% Figure S3F: generic plot of transition rate as a function of Msn2 with varying K and n
 
 close all; clc
 
@@ -2113,7 +2113,7 @@ xlim([0 1.1])
 xlabel('[Msn2]')
 ylabel('transition rate')
 
-%% Figure S8C: plot predicted Kd vs # STREs
+%% Figure S3G: plot predicted Kd vs # STREs
 
 % load('reporters_STRE_count')
 % Add STRE counts to promoter fits tables
@@ -2152,7 +2152,7 @@ g.draw();
 % export_fig(fullfile(pwd,'Kd_vs_STREs_1000bp_upstream_all_reporters'),'-png','-m4');
 
 
-%% Figure S10B: plot amplitude and duration thresholds vs WT w/ variance (ideal pulses) ****
+%% Figure S4G: plot amplitude and duration thresholds vs WT w/ variance (ideal pulses) ****
 reporters_to_plot = {'glpT','RTN2','TKL2','SIP18','ALD3','CTT1','SIP18 D6','DCS2','SIP18 A4','DDR2','HXK1','HSP12'};
 Msn2_to_plot = {'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
 nonresponders = (promoter_thresholds_ideal.Msn2=='Msn2(WT|4E|T)' & ...
@@ -2187,7 +2187,7 @@ g.axe_property('XTickLabelRotation',45);
 g.draw();
 g.redraw(0.05);
 
-%% Figure S11: compare the SIPs
+%% Figure S5A: compare the SIPs
 close all
 reporters_to_plot = {'SIP18','SIP18 D6','SIP18 A4'};
 Msn2_to_plot = {'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'};
@@ -2216,7 +2216,7 @@ g.facet_axes_handles(1,3).YLim = [-25 625];
 g.facet_axes_handles(2,3).YLim = [-25 625];
 % export_fig(fullfile(pwd,'compare_SIPs'),'-png','-m4');
 
-%% Figure S12A: plot mCitrine noise 
+%% Figure S5B: plot mCitrine noise 
 
 close all
 
@@ -2263,7 +2263,7 @@ g.no_legend();
 g.draw()
 % export_fig(fullfile(pwd,'mCitrine_noise'),'-png','-m4');
 
-%% Figure S12B: max mCitrine vs noise
+%% Figure S5C: max mCitrine vs noise
 grp_vars = {'strain','reporter','plasmid','Msn2','Msn2_tex','condition'};
 mCitrine_max_mean = grpstats(mCitrine_stats,grp_vars,'mean','DataVars',{'mCitrine_max','mCitrine_noise'});
 mCitrine_max_mean = clean_grpstats(mCitrine_max_mean);

@@ -10,7 +10,7 @@ close all; clearvars; clc;
 load('plot_figures_2_data.mat')
 return
 
-%% %%%%%%%%%%%%%%%%%% IMPORT DATA AND CALCULATE RSS ERROR %%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORT DATA  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set parameters
 n_guesses_plot = 10;
 initial_conditions = [1 0 0 0 0 0];
@@ -89,7 +89,7 @@ end
 % Combine objects from datastore and sort by RSS
 mCitrine_model = cat(1,mCitrine_model{:});
 
-%%%%%%%%%%%%%%%%%%%% Fit measurements to ODE solutions %%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%% FIT MEAUREMENTS TO ODEs AND CALCULATE RSS ERROR %%%%%%%%%%%%
 clc
 
 % Set parameters
@@ -353,7 +353,7 @@ save('plot_figures_2_data',...
 return
 
 %% %%%%%%%%%%%%%%%%%%%%%%%% PLOT MAIN FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure S9B: plot RSS/min(RSS) vs K_scale and n_scale 
+%% Figure S4B: plot RSS/min(RSS) vs K_scale and n_scale 
 close all
 % Plot RSS/RSS_min vs K_scale (all reporters)
 Msn2_to_plot = {'Msn2(WT|4E|WT)'};
@@ -372,7 +372,7 @@ g.axe_property('XLim',[0.5 4],'YLim',[0 12]);
 g.no_legend()
 g.draw();
 g.redraw(0.05);
-export_fig(fullfile(pwd,'Msn2_min_RSS_scale_K'),'-png','-m4');
+% export_fig(fullfile(pwd,'Msn2_min_RSS_scale_K'),'-png','-m4');
 
 Msn2_to_plot = {'Msn2(WT|4E|T)'};
 clc; clear g; figure('position',[100 100 250 200]);
@@ -390,13 +390,13 @@ g.axe_property('XLim',[0.5 4],'YLim',[0 12]);
 g.no_legend()
 g.draw();
 g.redraw(0.05);
-export_fig(fullfile(pwd,'Msn2T_min_RSS_scale_K'),'-png','-m4');
+% export_fig(fullfile(pwd,'Msn2T_min_RSS_scale_K'),'-png','-m4');
 
 % Calculte K_scale value that minimizes RSS/RSS_min
 % [~,RSS_min_idx] = min(g.results.stat_summary.y);
 % K_scale_min = g.results.stat_summary.x(RSS_min_idx) ;
 
-%% Figure S9B: plot simulated vs measured mCitrine for amplitude conditions
+%% Figure S4C: plot simulated vs measured mCitrine for amplitude conditions
 
 % % Plot RSS/RSS_min vs K_scale (all reporters)
 % Msn2_to_plot = {'Msn2(WT|4E|WT)'};
@@ -472,7 +472,7 @@ g.no_legend();
 g.draw();
 g.redraw(0.075);
 % g.facet_axes_handles(1).YLim = [-1 20];
-export_fig(fullfile(pwd,'mCitrine_mutants_measured_vs_scaled_model'),'-png','-m4');
+% export_fig(fullfile(pwd,'mCitrine_mutants_measured_vs_scaled_model'),'-png','-m4');
 
 
 

@@ -259,8 +259,8 @@ data_stats = outerjoin(data_stats,mCitrine_noise, 'Type', 'Left', 'MergeKeys', t
 
 % Apply re-ordered condition labels
 condition_reorder = table();
-condition_reorder.condition(:,1) = (1:14)';
-condition_reorder.condition_display(:,1) = [1,6,2,7,3,8,4,9,5,12,11,10,13,14]';
+condition_reorder.condition(:,1) = (1:16)';
+condition_reorder.condition_display(:,1) = [1,6,2,7,3,8,4,9,5,12,11,10,13,14,15,16]';
 data_stats = outerjoin(data_stats,condition_reorder, 'Type', 'Left', 'MergeKeys', true);
 data_stats = sortrows(data_stats,'condition_display');
 
@@ -276,7 +276,7 @@ mCitrine_stats = outerjoin(mCitrine_stats,fluorescence_basal(:,{'experiment','pl
 mCitrine_stats.Properties.VariableNames('mCitrine_cell_basal') = {'mCitrine_basal'};
 
 %% Plot Msn2 vs time for all reporters
-close all
+% close all
 
 % reporters_to_exclude = {'pHXK1','pHSP12','pDDR2'};
 % reporters_to_exclude = {'HXK1','HSP12','DDR2'};
@@ -314,7 +314,7 @@ close all
 %% Calculate composite Msn2 vs time (for promoter model inputs)
 
 grp_vars = {'condition','condition_display','bin','time'};
-subset = data_stats.condition<=14 & ismember(data_stats.Msn2,{'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'});
+subset = data_stats.condition<=16 & ismember(data_stats.Msn2,{'Msn2(WT|4E|A)','Msn2(WT|4E|WT)','Msn2(WT|4E|T)'});
 data_Msn2 = grpstats(data_stats(subset,:),grp_vars,'nanmean','DataVars',{'mScarlet_nuclear','mScarlet_localization'});
 data_Msn2 = clean_grpstats(data_Msn2);
 data_Msn2.Properties.VariableNames(end-1:end) = {'mScarlet_nuclear','mScarlet_localization'};
@@ -345,7 +345,7 @@ g.draw();
 
 %% Calculate Msn2 AUC
 condition_list = unique(data_Msn2.condition);
-data_Msn2_AUC = table('Size',[14,3],'VariableTypes',{'double','double','double'},'VariableNames',{'condition','condition_display','mScarlet_AUC'});
+data_Msn2_AUC = table('Size',[16,3],'VariableTypes',{'double','double','double'},'VariableNames',{'condition','condition_display','mScarlet_AUC'});
 
 for ii = 1:numel(condition_list)
     condition = condition_list(ii);

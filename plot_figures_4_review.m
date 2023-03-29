@@ -1,5 +1,6 @@
 clearvars; clc; close all
 
+%% Load promoter fits
 % Load promoter fits calculated when using meausured nuclear Msn2 time
 % courses as model input TF(t)
 promoter_fits_measured = load('promoter_fits_measured.mat');
@@ -21,7 +22,7 @@ promoter_fits_RSS_min = grpstats(promoter_fits,{'strain','plasmid'},'min','DataV
 promoter_fits = outerjoin(promoter_fits,promoter_fits_RSS_min,'Type', 'Left', 'MergeKeys', true);
 promoter_fits.RSS_norm_fc = promoter_fits.RSS_norm./promoter_fits.min_RSS_norm;
 
-%% Figure S7C: plot overall RSS error for measured vs ideal 
+%% Figure S3D: plot overall RSS error for measured vs ideal 
 close all
 reporters_to_plot = {'RTN2','TKL2','SIP18','ALD3','CTT1','SIP18 D6','DCS2','SIP18 A4','DDR2','HXK1','HSP12'};
 
